@@ -1,33 +1,33 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using GoodMorning.Models;
+using System.Net.Mime;
+using GoodMorning.Services;
 
 namespace GoodMorning.Controllers;
 
+[Produces(MediaTypeNames.Application.Json)]
 [ApiController]
-[Route("[controller]")]
-public class WeatherForecastController : ControllerBase
+[Route("GoodMorning")]
+public class GoodMorningController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly TimeAPIService _timeAPIService;
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public GoodMorningController(TimeAPIService timeAPIService)
     {
-        _logger = logger;
+        _timeAPIService = timeAPIService;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet("Time")]
+    public async Task<TimeResponse?> GetTime()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        try
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            return await _timeAPIService.GetTimeAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Custom Internal server error");
+        }
+
     }
 }
-
